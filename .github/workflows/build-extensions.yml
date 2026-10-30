@@ -1,10 +1,6 @@
 name: Build extension ZIPs
 
 on:
-  push:
-    branches: [main]
-    tags: ['v*']
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -14,6 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -33,27 +31,35 @@ jobs:
         id: version
         run: node -e 'require("node:fs").appendFileSync(process.env.GITHUB_OUTPUT, "version=" + require("./manifest.json").version + "\n")'
 
-      # Upload each existing ZIP directly so downloads are not nested ZIPs.
-      - name: Upload Chrome ZIP
-        uses: actions/upload-artifact@v7
-        with:
-          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-chrome.zip
-          archive: false
-          if-no-files-found: error
-          retention-days: 30
+      - name: Create draft release with browser ZIPs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # A unique tag gives every run (including reruns) its own draft.
+          release_tag="v${RELEASE_VERSION}-build.${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}"
+          notes_file="$(mktemp)"
+          trap 'rm -f "$notes_file"' EXIT
+          cat > "$notes_file" <<EOF
+          Browser packages for X URL Cleaner ${RELEASE_VERSION}.
 
-      - name: Upload Firefox ZIP
-        uses: actions/upload-artifact@v7
-        with:
-          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-firefox.zip
-          archive: false
-          if-no-files-found: error
-          retention-days: 30
+          Commit: ${GITHUB_SHA}
+          Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 
-      - name: Upload Safari ZIP
-        uses: actions/upload-artifact@v7
-        with:
-          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-safari.zip
-          archive: false
-          if-no-files-found: error
-          retention-days: 30
+          Verify all three browser packages before publishing this draft.
+          Chrome: extract the ZIP and use Load unpacked.
+          Firefox: select its ZIP in Load Temporary Add-on.
+          Safari: select its ZIP in Add Temporary Extension on supported macOS Safari.
+
+          These are unsigned packages for local/developer installation.
+          EOF
+          release_url="$(gh release create "$release_tag" \
+            --draft \
+            --target "$GITHUB_SHA" \
+            --title "X URL Cleaner ${RELEASE_VERSION} (build ${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT})" \
+            --notes-file "$notes_file" \
+            "dist/x-url-cleaner-${RELEASE_VERSION}-chrome.zip" \
+            "dist/x-url-cleaner-${RELEASE_VERSION}-firefox.zip" \
+            "dist/x-url-cleaner-${RELEASE_VERSION}-safari.zip")"
+          printf '### Draft release\n\n[Review the draft and download ZIPs](%s)\n\nPublishing is manual.\n' "$release_url" >> "$GITHUB_STEP_SUMMARY"

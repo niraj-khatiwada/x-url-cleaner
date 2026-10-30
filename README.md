@@ -19,9 +19,9 @@ Download a browser ZIP or build from source, then follow the steps for [Chrome /
 
 ### Download a ZIP (no build required)
 
-1. Open the repository's [Actions → Build extension ZIPs](https://github.com/niraj-khatiwada/x-url-cleaner/actions/workflows/build-extensions.yml).
-2. Select a successful run for the branch/version you want.
-3. Scroll to **Artifacts** and download the ZIP for your browser. GitHub requires signing in to download Actions artifacts. Downloads are retained for 30 days, subject to repository settings.
+1. Open the repository's [Releases](https://github.com/niraj-khatiwada/x-url-cleaner/releases).
+2. Choose a published release for the version you want.
+3. Under **Assets**, download the ZIP for your browser. Release files are published only after the maintainer has reviewed the draft and published it manually.
 
 | Browser | Download | Load locally |
 | --- | --- | --- |
@@ -29,7 +29,17 @@ Download a browser ZIP or build from source, then follow the steps for [Chrome /
 | Firefox | `x-url-cleaner-1.0.0-firefox.zip` | Select the ZIP in **Load Temporary Add-on…**. |
 | Safari | `x-url-cleaner-1.0.0-safari.zip` | Select the ZIP or extracted folder in **Add Temporary Extension…** on recent macOS Safari. |
 
-The workflow runs on pushes to `main`, `v*` tags, pull requests, and manually via **Run workflow** once the workflow is on the default branch. Each successful run tests and builds all three packages. Filenames use the version in `manifest.json`, which must match `package.json`. The ZIPs contain unsigned web extensions for local/developer loading; Firefox permanent installation and Safari App Store distribution still require their normal signing processes.
+The ZIPs contain unsigned web extensions for local/developer loading; Firefox permanent installation and Safari App Store distribution still require their normal signing processes.
+
+### Maintainer: create and publish a draft release
+
+1. Open [Actions → Build extension ZIPs](https://github.com/niraj-khatiwada/x-url-cleaner/actions/workflows/build-extensions.yml).
+2. Click **Run workflow**, select the branch, and run it. This workflow is manual-only: pushes, tags, and pull requests do not trigger it.
+3. After the tests/build succeed, open the **Draft release** link in the run summary, or find the draft under **Releases** while signed in with repository write access.
+4. Download the three attached ZIPs and verify them in their browsers. Each run, including a rerun, creates a separate draft with a unique tag such as `v1.0.0-build.RUN_ID.ATTEMPT`, targeting the exact commit built. Existing releases are not replaced.
+5. Edit the draft's title, notes, and tag as desired, then click **Publish release** when ready. The workflow never publishes it automatically.
+
+Filenames use the version in `manifest.json`, which must match `package.json`. A failed test/build does not create a draft. Drafts are for maintainer verification; users download from published releases.
 
 ### Build from source (alternative)
 
