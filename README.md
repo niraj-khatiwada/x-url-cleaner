@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="assets/logo.png" alt="X URL Cleaner logo: blue chain link being cut by scissors" width="160" height="160">
+</p>
+
 # X URL Cleaner
 
-## Install
+## Install locally
 
-### 1. Download and build the browser packages
+Follow the setup below once, then use the installation steps for your browser: [Chrome / Brave](#chrome--brave), [Firefox](#firefox-140-or-newer), or [Safari](#safari-on-macos-temporary-folder-installation).
+
+### Download and build the browser packages
 
 Install Node.js 18 or newer and make sure the `zip` command is available. Then run:
 
