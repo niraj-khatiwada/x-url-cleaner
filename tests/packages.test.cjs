@@ -2,6 +2,7 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const root = path.join(__dirname, "..");
 
 test("browser builds preserve script, scope, version, and valid icon dimensions", () => {
@@ -9,7 +10,7 @@ test("browser builds preserve script, scope, version, and valid icon dimensions"
   for (const browser of ["chrome", "firefox", "safari"]) {
     const directory = path.join(root, "dist", browser);
     const manifest = JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"));
-    assert.equal(manifest.version, "1.0.0");
+    assert.equal(manifest.version, base.version);
     assert.deepEqual(manifest.content_scripts, base.content_scripts);
     assert.equal(manifest.permissions, undefined);
     assert.deepEqual(manifest.host_permissions, base.content_scripts[0].matches);
@@ -37,5 +38,25 @@ test("browser builds preserve script, scope, version, and valid icon dimensions"
       assert.equal(manifest.minimum_chrome_version, undefined);
       assert.equal(manifest.browser_specific_settings.safari.strict_min_version, "18.0");
     }
+  }
+});
+
+test("all three downloadable ZIPs contain a loadable manifest and only extension files", () => {
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
+  for (const browser of ["chrome", "firefox", "safari"]) {
+    const archive = path.join(root, "dist", `x-url-cleaner-${version}-${browser}.zip`);
+    const entries = execFileSync("unzip", ["-Z1", archive], { encoding: "utf8" }).trim().split("\n");
+    for (const required of ["manifest.json", "background.js", "cleaner.js", "content.js", "popup/popup.html", "popup/popup.js", "popup/popup.css", "icons/icon-128.png"]) {
+      assert.ok(entries.includes(required), `${browser}: missing ${required}`);
+    }
+    for (const entry of entries) {
+      assert.match(entry, /^(manifest\.json|background\.js|cleaner\.js|content\.js|icons\/|popup\/)/);
+      assert.equal(entry.includes(".."), false);
+      assert.equal(entry.includes(".DS_Store"), false);
+    }
+    const zippedManifest = JSON.parse(execFileSync("unzip", ["-p", archive, "manifest.json"], { encoding: "utf8" }));
+    const builtManifest = JSON.parse(fs.readFileSync(path.join(root, "dist", browser, "manifest.json"), "utf8"));
+    assert.deepEqual(zippedManifest, builtManifest);
+    execFileSync("unzip", ["-tq", archive]);
   }
 });

@@ -4,11 +4,34 @@
 
 # X URL Cleaner
 
+## About
+
+A small Manifest V3 browser extension that removes the query string from X post links before they are copied. Keep using X's existing **Share → Copy link** menu. Chrome is live-tested; Firefox and Safari packages are prepared for browser testing.
+
+```text
+Before: https://x.com/Anc_Aesthetics/status/2115872968223941065?a=D8yU8po2mMl3FoLmAx0&s=20
+After:  https://x.com/Anc_Aesthetics/status/2115872968223941065
+```
+
 ## Install locally
 
-Follow the setup below once, then use the installation steps for your browser: [Chrome / Brave](#chrome--brave), [Firefox](#firefox-140-or-newer), or [Safari](#safari-on-macos-temporary-folder-installation).
+Download a browser ZIP or build from source, then follow the steps for [Chrome / Brave](#chrome--brave), [Firefox](#firefox-140-or-newer), or [Safari](#safari-on-macos-temporary-folder-installation).
 
-### Download and build the browser packages
+### Download a ZIP (no build required)
+
+1. Open the repository's [Actions → Build extension ZIPs](https://github.com/niraj-khatiwada/x-url-cleaner/actions/workflows/build-extensions.yml).
+2. Select a successful run for the branch/version you want.
+3. Scroll to **Artifacts** and download the ZIP for your browser. GitHub requires signing in to download Actions artifacts. Downloads are retained for 30 days, subject to repository settings.
+
+| Browser | Download | Load locally |
+| --- | --- | --- |
+| Chrome / Brave | `x-url-cleaner-1.0.0-chrome.zip` | Extract it, then use **Load unpacked** on the extracted folder. |
+| Firefox | `x-url-cleaner-1.0.0-firefox.zip` | Select the ZIP in **Load Temporary Add-on…**. |
+| Safari | `x-url-cleaner-1.0.0-safari.zip` | Select the ZIP or extracted folder in **Add Temporary Extension…** on recent macOS Safari. |
+
+The workflow runs on pushes to `main`, `v*` tags, pull requests, and manually via **Run workflow** once the workflow is on the default branch. Each successful run tests and builds all three packages. Filenames use the version in `manifest.json`, which must match `package.json`. The ZIPs contain unsigned web extensions for local/developer loading; Firefox permanent installation and Safari App Store distribution still require their normal signing processes.
+
+### Build from source (alternative)
 
 Install Node.js 18 or newer and make sure the `zip` command is available. Then run:
 
@@ -25,7 +48,7 @@ If you already have the project, run `npm run build` inside it. No `npm install`
 1. Open `chrome://extensions` (or `brave://extensions` in Brave).
 2. Turn on **Developer mode**.
 3. Click **Load unpacked**.
-4. Select the **`dist/chrome` folder**. Select the folder itself, not its manifest file.
+4. Select the **extracted Chrome ZIP folder**, or **`dist/chrome`** if you built from source. Select the folder itself, not its manifest file.
 5. Pin **X URL Cleaner** in the browser's extensions menu if you want it visible in the toolbar.
 6. Open or reload X/Twitter and allow site access if prompted.
 7. Click the toolbar icon to try the manual cleaner, or use X's **Share → Copy link** menu and paste the result into a text editor.
@@ -37,7 +60,7 @@ After updating: rebuild, click **Reload** on the extension card, and reload X/Tw
 1. Open `about:debugging`.
 2. Click **This Firefox**.
 3. Click **Load Temporary Add-on…**.
-4. Open the **`dist/firefox` folder and select `manifest.json`**. Alternatively, select `dist/x-url-cleaner-firefox-1.0.0.zip` directly.
+4. Select the downloaded **`x-url-cleaner-1.0.0-firefox.zip`**. If you built from source, select `dist/firefox/manifest.json` or `dist/x-url-cleaner-1.0.0-firefox.zip`.
 5. Use the Firefox build: the repository-root manifest and `dist/chrome` manifest are for Chrome and will report a background-service-worker error in Firefox.
 6. Allow access to X/Twitter if Firefox asks, then open or reload the site.
 7. Click the toolbar icon to try the popup, and test **Share → Copy link** on X.
@@ -54,22 +77,13 @@ These steps use a recent Safari version with **Add Temporary Extension…**. No 
 2. Enable **Show features for web developers** if the Developer settings tab is not already visible.
 3. Open **Settings → Developer** and click **Add Temporary Extension…**.
 4. Approve the unsigned-extension prompt for this locally built extension.
-5. Select the **`dist/safari` folder**, not the Chrome folder or a manifest file. In the file picker, press **Command+Shift+G** to enter its full path if needed.
+5. Select the downloaded **`x-url-cleaner-1.0.0-safari.zip`** or its extracted folder. If you built from source, select **`dist/safari`**. Use the Safari package, not the Chrome folder or a manifest file. In the file picker, press **Command+Shift+G** to enter its full path if needed.
 6. Open **Settings → Extensions**, enable **X URL Cleaner**, and allow access to X/Twitter. If you use Safari profiles, enable it for the profile you are testing.
 7. Open or reload X/Twitter. Test the toolbar popup and **Share → Copy link**, then paste into a text editor.
 
 After source changes, rebuild and reload the temporary extension using Safari's developer controls, or remove and re-add `dist/safari`. Safari may require allowing unsigned extensions again after restarting. If your Safari does not offer folder installation, use the Xcode project instructions below.
 
 [Apple's local testing instructions](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension).
-
-## About
-
-A small Manifest V3 browser extension that removes the query string from X post links before they are copied. Keep using X's existing **Share → Copy link** menu. Chrome is live-tested; Firefox and Safari packages are prepared for browser testing.
-
-```text
-Before: https://x.com/Anc_Aesthetics/status/2115872968223941065?a=D8yU8po2mMl3FoLmAx0&s=20
-After:  https://x.com/Anc_Aesthetics/status/2115872968223941065
-```
 
 ## Clean a link manually
 
@@ -103,7 +117,7 @@ The popup was rendered and exercised at its packaged extension URL in a disposab
 
 The master logo is `assets/logo.png`: scissors cutting a chain link, with no X glyph. `icons/` contains 16, 32, 48, and 128-pixel PNGs already wired into the manifest. Safari's native app icons use the same master. The built-in image generation prompt is recorded in `assets/README.md`.
 
-`npm run build` generates browser folders and Chrome/Firefox ZIPs under `dist/`. Generated packages and Xcode build output are ignored by Git; project source and logo files are retained.
+`npm run build` generates browser folders and Chrome/Firefox/Safari ZIPs under `dist/`, named `x-url-cleaner-VERSION-BROWSER.zip`. The Safari ZIP is a web-extension package for temporary loading, not a signed macOS app. Generated packages and Xcode build output are ignored by Git; project source and logo files are retained.
 
 ## Behavior and privacy
 
@@ -134,6 +148,4 @@ Manual acceptance checks in Chrome:
 
 The automated tests simulate clipboard APIs; the live menu check is separate and does not cover every X view. Browser address-bar copying and the browser's **Copy link address** context menu do not call these page APIs and are outside this extension's scope. Rich `Clipboard.write()` payloads and native OS share sheets are not intercepted. If X changes its clipboard implementation or replaces these methods after startup, the extension may need an update.
 
-## Publishing
-
-See [PUBLISHING.md](PUBLISHING.md) for Chrome Web Store, Firefox Add-ons, and Safari App Store submission steps. See [PRIVACY.md](PRIVACY.md) for the extension privacy statement.
+See [PRIVACY.md](PRIVACY.md) for the extension privacy statement.

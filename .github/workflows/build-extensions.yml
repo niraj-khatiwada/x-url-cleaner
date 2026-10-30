@@ -1,0 +1,59 @@
+name: Build extension ZIPs
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Build packages and run tests
+        run: npm test
+
+      - name: Read extension version
+        id: version
+        run: node -e 'require("node:fs").appendFileSync(process.env.GITHUB_OUTPUT, "version=" + require("./manifest.json").version + "\n")'
+
+      # Upload each existing ZIP directly so downloads are not nested ZIPs.
+      - name: Upload Chrome ZIP
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-chrome.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Firefox ZIP
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-firefox.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Safari ZIP
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/x-url-cleaner-${{ steps.version.outputs.version }}-safari.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
