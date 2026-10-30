@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "X URL Cleaner",
+  "version": "1.0.0",
+  "description": "Remove query parameters from X post links as they are copied.",
+  "minimum_chrome_version": "111",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://www.x.com/*",
+        "https://twitter.com/*",
+        "https://www.twitter.com/*",
+        "https://mobile.twitter.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
