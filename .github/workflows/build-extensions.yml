@@ -41,19 +41,7 @@ jobs:
           release_tag="v${RELEASE_VERSION}-build.${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}"
           notes_file="$(mktemp)"
           trap 'rm -f "$notes_file"' EXIT
-          cat > "$notes_file" <<EOF
-          Browser packages for X URL Cleaner ${RELEASE_VERSION}.
-
-          Commit: ${GITHUB_SHA}
-          Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
-
-          Verify all three browser packages before publishing this draft.
-          Chrome: extract the ZIP and use Load unpacked.
-          Firefox: select its ZIP in Load Temporary Add-on.
-          Safari: select its ZIP in Add Temporary Extension on supported macOS Safari.
-
-          These are unsigned packages for local/developer installation.
-          EOF
+          RELEASE_NOTES_FILE="$notes_file" node -e 'const fs = require("node:fs"); fs.writeFileSync(process.env.RELEASE_NOTES_FILE, fs.readFileSync(".github/release-notes.md", "utf8").replaceAll("{{VERSION}}", process.env.RELEASE_VERSION))'
           release_url="$(gh release create "$release_tag" \
             --draft \
             --target "$GITHUB_SHA" \
