@@ -2,8 +2,9 @@
   "name": "x-url-cleaner",
   "version": "1.0.0",
   "private": true,
-  "description": "A local Chrome extension for clean X post links.",
+  "description": "A local browser extension for clean X post links.",
   "scripts": {
-    "test": "node --test tests/*.test.cjs"
+    "build": "node scripts/build.cjs",
+    "test": "node scripts/build.cjs && node --test tests/*.test.cjs"
   }
 }

@@ -1,6 +1,6 @@
 # X URL Cleaner
 
-A small Manifest V3 Chrome extension that removes the query string from X post links before they are copied. Keep using X's existing **Share → Copy link** menu.
+A small Manifest V3 browser extension that removes the query string from X post links before they are copied. Keep using X's existing **Share → Copy link** menu. Chrome is live-tested; Firefox and Safari packages are prepared for browser testing.
 
 ```text
 Before: https://x.com/Anc_Aesthetics/status/2115872968223941065?a=D8yU8po2mMl3FoLmAx0&s=20
@@ -16,6 +16,42 @@ After:  https://x.com/Anc_Aesthetics/status/2115872968223941065
 5. Use **Share → Copy link** on a post, then paste into a text editor to check the result.
 
 No build or npm install is required. After changing the extension, click its **Reload** button on the extensions page and reload X again. Disable or remove it from the same page.
+
+## Clean a link manually
+
+Click the extension's toolbar icon, paste an X or Twitter post URL, and click **Copy**. The cleaned URL appears immediately as you type or paste. Already-clean links can also be copied. Unsupported or malformed links show a message rather than silently changing the URL. If clipboard writing is blocked, the result is selected for manual copying with Command+C or Ctrl+C.
+
+The popup works from any page and never reads your clipboard automatically or stores your links. Both the popup and automatic copying use the same URL-cleaning code in `cleaner.js`. Reload the extension after updating; for a Safari temporary install, re-add `dist/safari` if the popup does not appear.
+
+## Firefox
+
+Run `npm run build` (Node.js 18+ and the `zip` command). In Firefox 140 or newer, open `about:debugging`, select **This Firefox → Load Temporary Add-on**, and choose `dist/firefox/manifest.json` or `dist/x-url-cleaner-firefox-1.0.0.zip`. Reload X after allowing site access. Temporary installation lasts until Firefox restarts; permanent distribution requires Mozilla signing. The Firefox manifest declares no data collection.
+
+See [Mozilla's installation instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/) and [data collection manifest documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings).
+
+## Safari on macOS
+
+The Xcode wrapper is at `safari/X URL Cleaner/X URL Cleaner.xcodeproj`. It targets macOS 15+ and Safari 18+. Run `npm run build` first; this also synchronizes the copied extension resources in the Xcode project. Open the project, select your signing team, and build/run the **X URL Cleaner** scheme. Then enable the extension in Safari settings, allow access to X, and reload X. Public distribution needs Apple signing and packaging. See [Apple's run instructions](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension).
+
+The unsigned app can be compiled for verification without installing it:
+
+```sh
+xcodebuild -project 'safari/X URL Cleaner/X URL Cleaner.xcodeproj' \
+  -scheme 'X URL Cleaner' -configuration Debug -derivedDataPath build/safari \
+  CODE_SIGNING_ALLOWED=NO build
+```
+
+The local Safari packager warns about `content_scripts.world`, although [MDN's compatibility data](https://github.com/mdn/browser-compat-data/blob/main/webextensions/manifest/content_scripts.json) lists it as supported since Safari 18. The manifest retains `MAIN` because page API interception needs it. Verify this in Safari, along with the full copy-menu behavior, before release. The generated project is macOS-only; iOS has not been packaged or tested.
+
+The unsigned macOS app compiled successfully with the locally installed Xcode toolchain. Firefox and Safari have not yet passed a live X copy-menu test; package checks and native compilation are not substitutes for that check.
+
+The popup was rendered and exercised at its packaged extension URL in a disposable Chromium profile. Checks covered live input cleaning, layout, and the copy button with a stubbed clipboard. Native clipboard writing from the popup still needs a manual check in each browser; failure feedback and manual copying are covered by automated tests.
+
+## Logo and packages
+
+The master logo is `assets/logo.png`: scissors cutting a chain link, with no X glyph. `icons/` contains 16, 32, 48, and 128-pixel PNGs already wired into the manifest. Safari's native app icons use the same master. The built-in image generation prompt is recorded in `assets/README.md`.
+
+`npm run build` generates browser folders and Chrome/Firefox ZIPs under `dist/`. Generated packages and Xcode build output are ignored by Git; project source and logo files are retained.
 
 ## Behavior and privacy
 

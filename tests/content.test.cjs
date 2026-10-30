@@ -34,6 +34,7 @@ function page({ failure, missingClipboard = false, lockedClipboard = false } = {
     URL, Clipboard: missingClipboard ? undefined : Clipboard, DataTransfer,
     addEventListener: (...args) => listeners.push(args)
   });
+  vm.runInContext(fs.readFileSync(path.join(root, "cleaner.js"), "utf8"), context);
   vm.runInContext(source, context);
   return {
     clipboard: new Clipboard(), buffer: new DataTransfer(), calls, nativeResult,
