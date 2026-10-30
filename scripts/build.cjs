@@ -10,6 +10,11 @@ for (const browser of ["chrome", "firefox", "safari"]) {
   fs.mkdirSync(destination, { recursive: true });
   const manifest = structuredClone(base);
   if (browser !== "chrome") delete manifest.minimum_chrome_version;
+  if (browser !== "chrome") {
+    // Manifest V3 event pages are nonpersistent by default; Firefox warns if
+    // the legacy `persistent` property is included, even when set to false.
+    manifest.background = { scripts: ["cleaner.js", "background.js"] };
+  }
   if (browser === "firefox") {
     manifest.browser_specific_settings = {
       gecko: {
@@ -23,7 +28,7 @@ for (const browser of ["chrome", "firefox", "safari"]) {
     manifest.browser_specific_settings = { safari: { strict_min_version: "18.0" } };
   }
   fs.writeFileSync(path.join(destination, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
-  for (const file of ["cleaner.js", "content.js", "icons", "popup"]) {
+  for (const file of ["background.js", "cleaner.js", "content.js", "icons", "popup"]) {
     fs.cpSync(path.join(root, file), path.join(destination, file), { recursive: true });
   }
   // Safari is packaged through Xcode rather than as a ZIP.
@@ -31,7 +36,7 @@ for (const browser of ["chrome", "firefox", "safari"]) {
     const archive = path.join(root, "dist", `x-url-cleaner-${browser}-${base.version}.zip`);
     // Remove the previous generated archive so zip cannot retain stale entries.
     fs.rmSync(archive, { force: true });
-    execFileSync("zip", ["-qr", archive, "manifest.json", "cleaner.js", "content.js", "icons", "popup"], { cwd: destination });
+    execFileSync("zip", ["-qr", archive, "manifest.json", "background.js", "cleaner.js", "content.js", "icons", "popup"], { cwd: destination });
   }
   console.log(`Built ${browser}: ${path.relative(root, destination)}`);
 }
@@ -39,7 +44,7 @@ for (const browser of ["chrome", "firefox", "safari"]) {
 // Keep Xcode's copied extension resources in sync with the browser package.
 const safariResources = path.join(root, "safari", "X URL Cleaner", "X URL Cleaner Extension", "Resources");
 if (fs.existsSync(safariResources)) {
-  for (const file of ["manifest.json", "cleaner.js", "content.js", "icons", "popup"]) {
+  for (const file of ["manifest.json", "background.js", "cleaner.js", "content.js", "icons", "popup"]) {
     fs.cpSync(path.join(root, "dist", "safari", file), path.join(safariResources, file), { recursive: true });
   }
 }

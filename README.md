@@ -1,5 +1,63 @@
 # X URL Cleaner
 
+## Install
+
+### 1. Download and build the browser packages
+
+Install Node.js 18 or newer and make sure the `zip` command is available. Then run:
+
+```sh
+git clone https://github.com/niraj-khatiwada/x-url-cleaner.git
+cd x-url-cleaner
+npm run build
+```
+
+If you already have the project, run `npm run build` inside it. No `npm install` is needed: the project has no npm dependencies. Browser-specific folders and ZIPs are generated in `dist/`.
+
+### Chrome / Brave
+
+1. Open `chrome://extensions` (or `brave://extensions` in Brave).
+2. Turn on **Developer mode**.
+3. Click **Load unpacked**.
+4. Select the **`dist/chrome` folder**. Select the folder itself, not its manifest file.
+5. Pin **X URL Cleaner** in the browser's extensions menu if you want it visible in the toolbar.
+6. Open or reload X/Twitter and allow site access if prompted.
+7. Click the toolbar icon to try the manual cleaner, or use X's **Share → Copy link** menu and paste the result into a text editor.
+
+After updating: rebuild, click **Reload** on the extension card, and reload X/Twitter tabs.
+
+### Firefox (140 or newer)
+
+1. Open `about:debugging`.
+2. Click **This Firefox**.
+3. Click **Load Temporary Add-on…**.
+4. Open the **`dist/firefox` folder and select `manifest.json`**. Alternatively, select `dist/x-url-cleaner-firefox-1.0.0.zip` directly.
+5. Use the Firefox build: the repository-root manifest and `dist/chrome` manifest are for Chrome and will report a background-service-worker error in Firefox.
+6. Allow access to X/Twitter if Firefox asks, then open or reload the site.
+7. Click the toolbar icon to try the popup, and test **Share → Copy link** on X.
+
+Temporary add-ons are removed when Firefox restarts. After source changes, rebuild and click **Reload** in `about:debugging` if you loaded the manifest. If you loaded the ZIP, remove and re-add the rebuilt ZIP. A permanent installation requires a Mozilla-signed release.
+
+[Mozilla's temporary installation instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
+
+### Safari on macOS (temporary folder installation)
+
+These steps use a recent Safari version with **Add Temporary Extension…**. No paid Apple Developer membership or Xcode project is needed for this local test.
+
+1. Open **Safari → Settings → Advanced**.
+2. Enable **Show features for web developers** if the Developer settings tab is not already visible.
+3. Open **Settings → Developer** and click **Add Temporary Extension…**.
+4. Approve the unsigned-extension prompt for this locally built extension.
+5. Select the **`dist/safari` folder**, not the Chrome folder or a manifest file. In the file picker, press **Command+Shift+G** to enter its full path if needed.
+6. Open **Settings → Extensions**, enable **X URL Cleaner**, and allow access to X/Twitter. If you use Safari profiles, enable it for the profile you are testing.
+7. Open or reload X/Twitter. Test the toolbar popup and **Share → Copy link**, then paste into a text editor.
+
+After source changes, rebuild and reload the temporary extension using Safari's developer controls, or remove and re-add `dist/safari`. Safari may require allowing unsigned extensions again after restarting. If your Safari does not offer folder installation, use the Xcode project instructions below.
+
+[Apple's local testing instructions](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension).
+
+## About
+
 A small Manifest V3 browser extension that removes the query string from X post links before they are copied. Keep using X's existing **Share → Copy link** menu. Chrome is live-tested; Firefox and Safari packages are prepared for browser testing.
 
 ```text
@@ -7,29 +65,17 @@ Before: https://x.com/Anc_Aesthetics/status/2115872968223941065?a=D8yU8po2mMl3Fo
 After:  https://x.com/Anc_Aesthetics/status/2115872968223941065
 ```
 
-## Install locally
-
-1. Open `chrome://extensions` in Chrome.
-2. Turn on **Developer mode**.
-3. Click **Load unpacked** and select this folder (`/Users/niraj/Documents/x-url-cleaner`).
-4. Reload any open X tabs so the extension loads before X's scripts.
-5. Use **Share → Copy link** on a post, then paste into a text editor to check the result.
-
-No build or npm install is required. After changing the extension, click its **Reload** button on the extensions page and reload X again. Disable or remove it from the same page.
-
 ## Clean a link manually
 
 Click the extension's toolbar icon, paste an X or Twitter post URL, and click **Copy**. The cleaned URL appears immediately as you type or paste. Already-clean links can also be copied. Unsupported or malformed links show a message rather than silently changing the URL. If clipboard writing is blocked, the result is selected for manual copying with Command+C or Ctrl+C.
 
 The popup works from any page and never reads your clipboard automatically or stores your links. Both the popup and automatic copying use the same URL-cleaning code in `cleaner.js`. Reload the extension after updating; for a Safari temporary install, re-add `dist/safari` if the popup does not appear.
 
-## Firefox
+The toolbar icon is full color on supported HTTPS X/Twitter pages and fades to grayscale on other sites. Its tooltip explains whether automatic cleaning is active. The popup remains available for manually cleaning a pasted post link from any page.
 
-Run `npm run build` (Node.js 18+ and the `zip` command). In Firefox 140 or newer, open `about:debugging`, select **This Firefox → Load Temporary Add-on**, and choose `dist/firefox/manifest.json` or `dist/x-url-cleaner-firefox-1.0.0.zip`. Reload X after allowing site access. Temporary installation lasts until Firefox restarts; permanent distribution requires Mozilla signing. The Firefox manifest declares no data collection.
+Automatic clipboard hooks are limited by both manifest match patterns and a runtime hostname check. The background script only updates toolbar state; it does not access the clipboard or inject into pages. Host permissions are restricted to the same X/Twitter hosts so supported tab URLs can be recognized without requesting the broad `tabs` permission. Other tab URLs are treated as inactive when unavailable.
 
-See [Mozilla's installation instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/) and [data collection manifest documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings).
-
-## Safari on macOS
+## Safari Xcode project (optional)
 
 The Xcode wrapper is at `safari/X URL Cleaner/X URL Cleaner.xcodeproj`. It targets macOS 15+ and Safari 18+. Run `npm run build` first; this also synchronizes the copied extension resources in the Xcode project. Open the project, select your signing team, and build/run the **X URL Cleaner** scheme. Then enable the extension in Safari settings, allow access to X, and reload X. Public distribution needs Apple signing and packaging. See [Apple's run instructions](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension).
 
@@ -81,3 +127,7 @@ Manual acceptance checks in Chrome:
 ## Limits
 
 The automated tests simulate clipboard APIs; the live menu check is separate and does not cover every X view. Browser address-bar copying and the browser's **Copy link address** context menu do not call these page APIs and are outside this extension's scope. Rich `Clipboard.write()` payloads and native OS share sheets are not intercepted. If X changes its clipboard implementation or replaces these methods after startup, the extension may need an update.
+
+## Publishing
+
+See [PUBLISHING.md](PUBLISHING.md) for Chrome Web Store, Firefox Add-ons, and Safari App Store submission steps. See [PRIVACY.md](PRIVACY.md) for the extension privacy statement.

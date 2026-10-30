@@ -3,6 +3,19 @@
   "name": "X URL Cleaner",
   "version": "1.0.0",
   "description": "Remove query parameters from X post links as they are copied.",
+  "background": {
+    "scripts": [
+      "cleaner.js",
+      "background.js"
+    ]
+  },
+  "host_permissions": [
+    "https://x.com/*",
+    "https://www.x.com/*",
+    "https://twitter.com/*",
+    "https://www.twitter.com/*",
+    "https://mobile.twitter.com/*"
+  ],
   "action": {
     "default_title": "Clean a post link",
     "default_popup": "popup/popup.html"

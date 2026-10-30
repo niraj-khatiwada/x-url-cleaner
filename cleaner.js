@@ -38,5 +38,15 @@
     }
   }
 
-  globalThis.XURLCleaner = Object.freeze({ cleanPostURL, isPostURL });
+  function isSupportedSite(value) {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && hosts.has(url.hostname) &&
+        !url.username && !url.password && !url.port;
+    } catch {
+      return false;
+    }
+  }
+
+  globalThis.XURLCleaner = Object.freeze({ cleanPostURL, isPostURL, isSupportedSite });
 })();

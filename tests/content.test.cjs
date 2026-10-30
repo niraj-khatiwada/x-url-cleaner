@@ -9,7 +9,7 @@ const source = fs.readFileSync(path.join(root, "content.js"), "utf8");
 const dirty = "https://x.com/Anc_Aesthetics/status/2115872968223941065?a=D8yU8po2mMl3FoLmAx0&s=20";
 const clean = "https://x.com/Anc_Aesthetics/status/2115872968223941065";
 
-function page({ failure, missingClipboard = false, lockedClipboard = false } = {}) {
+function page({ failure, missingClipboard = false, lockedClipboard = false, url = "https://x.com/home" } = {}) {
   const calls = [];
   const listeners = [];
   const nativeResult = failure ? Promise.reject(failure) : Promise.resolve();
@@ -31,7 +31,7 @@ function page({ failure, missingClipboard = false, lockedClipboard = false } = {
     Object.defineProperty(Clipboard.prototype, "writeText", { writable: false, configurable: false });
   }
   const context = vm.createContext({
-    URL, Clipboard: missingClipboard ? undefined : Clipboard, DataTransfer,
+    URL, location: { href: url }, Clipboard: missingClipboard ? undefined : Clipboard, DataTransfer,
     addEventListener: (...args) => listeners.push(args)
   });
   vm.runInContext(fs.readFileSync(path.join(root, "cleaner.js"), "utf8"), context);
@@ -179,11 +179,20 @@ test("re-injection does not stack method wrappers", () => {
   assert.deepEqual(p.calls, [[clean]]);
 });
 
+test("clipboard hooks never run on unrelated sites, lookalike hosts, or non-HTTPS pages", () => {
+  for (const url of ["https://example.com/", "https://x.com.evil.example/", "http://x.com/", "about:blank"]) {
+    const p = page({ url });
+    assert.equal(p.listeners.length, 0, url);
+    p.clipboard.writeText(dirty);
+    assert.equal(p.calls[0][0], dirty, url);
+  }
+});
+
 test("manifest loads the real script early in MAIN world with no API permissions", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.permissions, undefined);
-  assert.equal(manifest.host_permissions, undefined);
+  assert.deepEqual(manifest.host_permissions, manifest.content_scripts[0].matches);
   assert.equal(manifest.content_scripts.length, 1);
   const script = manifest.content_scripts[0];
   assert.equal(script.world, "MAIN");

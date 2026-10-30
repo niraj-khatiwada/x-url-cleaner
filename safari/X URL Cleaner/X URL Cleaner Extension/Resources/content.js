@@ -1,6 +1,10 @@
 (() => {
   "use strict";
 
+  // Defense in depth: do not install clipboard hooks outside the allowed sites,
+  // even if this file is accidentally injected with a broader match pattern.
+  if (!globalThis.XURLCleaner.isSupportedSite(globalThis.location?.href)) return;
+
   const { cleanPostURL } = globalThis.XURLCleaner;
 
   function wrapMethod(prototype, name, makeWrapper) {

@@ -15,14 +15,20 @@
     <main>
       <label for="link">Paste a post link</label>
       <textarea id="link" rows="3" placeholder="https://x.com/user/status/123?a=…" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="hint" autofocus></textarea>
-      <p id="hint" class="hint">X and Twitter post links · cleans as you type</p>
+      <p id="hint" class="hint">X or Twitter link. Parameters removed instantly.</p>
       <div class="result-label">
         <span id="result-label">Clean URL</span>
-        <button id="copy" type="button" disabled aria-label="Copy clean URL">Copy</button>
+        <button id="copy" type="button" disabled aria-label="Copy clean URL">
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+          Copy
+        </button>
       </div>
       <p id="result" tabindex="0" aria-labelledby="result-label"></p>
       <p id="status" role="status" aria-live="polite"></p>
     </main>
-    <footer>Private by default. Links stay on this device.</footer>
+    <footer>
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      Private by default. Links stay on your device.
+    </footer>
   </body>
 </html>

@@ -22,6 +22,7 @@
 		D8C781DD30945CF200E1F0F1 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = D8C781DA30945CF200E1F0F1 /* content.js */; };
 		AC2000000000000000000001 /* cleaner.js in Resources */ = {isa = PBXBuildFile; fileRef = AC1000000000000000000001 /* cleaner.js */; };
 		AC2000000000000000000002 /* popup in Resources */ = {isa = PBXBuildFile; fileRef = AC1000000000000000000002 /* popup */; };
+		AC2000000000000000000003 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = AC1000000000000000000003 /* background.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		D8C781DA30945CF200E1F0F1 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = Resources/content.js; sourceTree = "<group>"; };
 		AC1000000000000000000001 /* cleaner.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = cleaner.js; path = Resources/cleaner.js; sourceTree = "<group>"; };
 		AC1000000000000000000002 /* popup */ = {isa = PBXFileReference; lastKnownFileType = folder; name = popup; path = Resources/popup; sourceTree = "<group>"; };
+		AC1000000000000000000003 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 				D8C781D830945CF200E1F0F1 /* icons */,
 				D8C781D930945CF200E1F0F1 /* manifest.json */,
 				D8C781DA30945CF200E1F0F1 /* content.js */,
+				AC1000000000000000000003 /* background.js */,
 				AC1000000000000000000002 /* popup */,
 				AC1000000000000000000001 /* cleaner.js */,
 			);
@@ -237,6 +240,7 @@
 			isa = PBXResourcesBuildPhase;
 			files = (
 				D8C781DD30945CF200E1F0F1 /* content.js in Resources */,
+				AC2000000000000000000003 /* background.js in Resources */,
 				AC2000000000000000000002 /* popup in Resources */,
 				AC2000000000000000000001 /* cleaner.js in Resources */,
 				D8C781DC30945CF200E1F0F1 /* manifest.json in Resources */,
